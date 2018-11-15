@@ -1,6 +1,7 @@
 package br.com.glauco.differ.controller;
 
 import br.com.glauco.differ.model.BinaryData;
+import br.com.glauco.differ.model.BinarySet;
 import br.com.glauco.differ.model.ResponseDTO;
 import br.com.glauco.differ.service.DiffService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,11 @@ public class DiffController {
     @GetMapping(value = "/v1/diff/{id}")
     public ResponseEntity<ResponseDTO> diffFiles(@PathVariable("id") Long id){
         return diffService.findDiff(id);
+    }
+
+    @PostMapping(value ="/v2/diff")
+    public ResponseEntity<ResponseDTO> diffFiles(@RequestBody BinarySet binarySet){
+        return diffService.receiveAndDiff(binarySet);
     }
 
 }

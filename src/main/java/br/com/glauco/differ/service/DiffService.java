@@ -1,9 +1,6 @@
 package br.com.glauco.differ.service;
 
-import br.com.glauco.differ.model.BinaryData;
-import br.com.glauco.differ.model.FileId;
-import br.com.glauco.differ.model.ResponseDTO;
-import br.com.glauco.differ.model.SideEnum;
+import br.com.glauco.differ.model.*;
 import br.com.glauco.differ.repository.BinaryDataRepository;
 import name.fraser.neil.plaintext.diff_match_patch;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Objects;
 
 @Service
 public class DiffService {
@@ -87,7 +85,8 @@ public class DiffService {
             differ.diff_cleanupSemantic(result);
 
             if(files.get(0).getData().length() != files.get(1).getData().length()){
-                responseDTO.setResult("The files do not have the same size");
+                responseDTO.setResult("The files do not have the same size. The left one has " + files.get(0).getData().length()
+                 + " characters and the right one has " + files.get(1).getData().length() + " characters.");
             }else{
 
                 if(result.size() == 1 && result.get(0).operation.equals(diff_match_patch.Operation.EQUAL) ){
@@ -111,6 +110,31 @@ public class DiffService {
             }
         }else{
             responseDTO.setResult("File not found");
+            status =  HttpStatus.BAD_REQUEST;
+        }
+
+        return new ResponseEntity<>(responseDTO, status);
+
+    }
+
+    /**
+     * This method will receive both files as a request and will send the differences as as response
+     * without saving any data
+     * @param binarySet An object containing 2 Binary data
+     * @return The differences between both files
+     */
+    public ResponseEntity receiveAndDiff(BinarySet binarySet){
+        ResponseDTO responseDTO = new ResponseDTO();
+        HttpStatus status = HttpStatus.OK;
+
+        if(Objects.nonNull(binarySet.getData1()) &&  Objects.nonNull(binarySet.getData2())){
+            diff_match_patch differ = new diff_match_patch();
+            LinkedList<diff_match_patch.Diff> result = differ.diff_main(binarySet.getData1(), binarySet.getData2());
+            differ.diff_cleanupSemantic(result);
+            responseDTO.setResult(result.toString());
+
+        }else{
+            responseDTO.setResult("No data to differ");
             status =  HttpStatus.BAD_REQUEST;
         }
 

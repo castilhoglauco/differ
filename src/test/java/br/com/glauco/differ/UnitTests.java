@@ -1,8 +1,6 @@
 package br.com.glauco.differ;
 
-import br.com.glauco.differ.model.BinaryData;
-import br.com.glauco.differ.model.FileId;
-import br.com.glauco.differ.model.SideEnum;
+import br.com.glauco.differ.model.*;
 import br.com.glauco.differ.repository.BinaryDataRepository;
 import br.com.glauco.differ.service.DiffService;
 import name.fraser.neil.plaintext.diff_match_patch;
@@ -80,6 +78,32 @@ public class UnitTests {
         dataToSave2.setData("Data 6");
         HttpStatus status = diffService.saveLeftData(dataToSave2, 3L);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, status);
+    }
+
+    @Test
+    public void testDiff(){
+        BinaryData dataToSave1 = new BinaryData();
+        dataToSave1.setData("Some text");
+        diffService.saveLeftData(dataToSave1, 4L);
+
+        BinaryData dataToSave2 = new BinaryData();
+        dataToSave2.setData("A somewhat Different Text");
+        diffService.saveRightData(dataToSave2, 4L);
+
+        ResponseEntity response = diffService.findDiff(4L);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("The files do not have the same size. The left one has 9" +
+                " characters and the right one has 25 characters.", ((ResponseDTO)response.getBody()).getResult());
+
+    }
+
+    @Test
+    public void testReceiveAndDiff(){
+        BinarySet binarySet = new BinarySet();
+        binarySet.setData1("A Text");
+        binarySet.setData2("A Bigger Text");
+        ResponseEntity response = diffService.receiveAndDiff(binarySet);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
 }
