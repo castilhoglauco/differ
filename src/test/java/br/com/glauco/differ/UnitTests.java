@@ -32,7 +32,7 @@ public class UnitTests {
     @Test
     public void testSaveLeft(){
         BinaryData dataToSave = new BinaryData();
-        dataToSave.setData("Data 1");
+        dataToSave.setData("Data 1");//
         diffService.saveLeftData(dataToSave, 1L);
         FileId fileId = new FileId(1L, SideEnum.LEFT);
         Optional<BinaryData> readData = binaryDataRepository.findById(fileId);
